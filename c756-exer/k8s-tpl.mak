@@ -287,6 +287,12 @@ s2: rollout-s2 cluster/s2-svc.yaml cluster/s2-sm.yaml cluster/s2-vs.yaml
 	$(KC) -n $(APP_NS) apply -f cluster/s2-sm.yaml | tee -a $(LOG_DIR)/s2.log
 	$(KC) -n $(APP_NS) apply -f cluster/s2-vs.yaml | tee -a $(LOG_DIR)/s2.log
 
+# Update leaderboard and associated monitoring, rebuilding if necessary
+leaderboard: rollout-leaderboard cluster/leaderboard-svc.yaml cluster/leaderboard-sm.yaml cluster/leaderboard-vs.yaml
+	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-svc.yaml | tee $(LOG_DIR)/leaderboard.log
+	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-sm.yaml | tee -a $(LOG_DIR)/leaderboard.log
+	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-vs.yaml | tee -a $(LOG_DIR)/leaderboard.log
+
 # Update DB and associated monitoring, rebuilding if necessary
 db: $(LOG_DIR)/db.repo.log cluster/awscred.yaml cluster/dynamodb-service-entry.yaml cluster/db.yaml cluster/db-sm.yaml cluster/db-vs.yaml
 	$(KC) -n $(APP_NS) apply -f cluster/awscred.yaml | tee $(LOG_DIR)/db.log
