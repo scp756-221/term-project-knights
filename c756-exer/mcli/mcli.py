@@ -96,10 +96,11 @@ Enter 'help' for command list.
             return
         print("{} items returned".format(items['Count']))
         for i in items['Items']:
-            print("{}  {:20.20s} {}".format(
+            print("{}  {:20.20s} {}   {}".format(
                 i['music_id'],
                 i['Artist'],
-                i['SongTitle']))
+                i['SongTitle'],
+                i['rank']))
 
     def do_create(self, arg):
         """

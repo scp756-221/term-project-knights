@@ -40,7 +40,7 @@ def load_db():
         rdr = csv.reader(inp)
         next(rdr)  # Skip header line
         for artist, songtitle, id, rank in rdr:
-            database[id] = (artist, songtitle)
+            database[id] = (artist, songtitle, rank)
 
 
 @bp.route('/health')
@@ -59,7 +59,7 @@ def list_all():
     response = {
         "Count": len(database),
         "Items":
-            [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id}
+            [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id, 'rank':value[2]}
              for id, value in database.items()]
     }
     return response
@@ -75,7 +75,8 @@ def get_song(music_id):
             "Items":
                 [{'Artist': value[0],
                   'SongTitle': value[1],
-                  'music_id': music_id}]
+                  'music_id': music_id,
+                  'rank': value[2]}]
         }
     else:
         response = {
@@ -93,6 +94,7 @@ def create_song():
         content = request.get_json()
         Artist = content['Artist']
         SongTitle = content['SongTitle']
+        rank = content['rank']
     except Exception:
         return app.make_response(
             ({"Message": "Error reading arguments"}, 400)
