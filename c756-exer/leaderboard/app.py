@@ -120,6 +120,33 @@ def delete_song(music_id):
         return app.make_response((response, 404))
     return {}
 
+@bp.route('/<music_id>', methods=['POST'])
+def upvote(music_id):
+    global database
+    if music_id in database:
+        try:
+            content = request.get_json()
+            value = database[music_id]
+            upvotes = value[2]
+            upvotes = str(int(upvotes)+1)
+            database[music_id] = (value[0], value[1], upvotes)
+            response = {
+        "music_id": music_id
+    }
+
+        except Exception as e:
+            return app.make_response(
+            ({"Message": "Error reading data"}, 400)
+            )
+        
+    else:
+        response = {
+            "Count": 0,
+            "Items": []
+        }
+    
+        return app.make_response((response, 404))
+    return response
 
 # @bp.route('/test', methods=['GET'])
 # def test():
