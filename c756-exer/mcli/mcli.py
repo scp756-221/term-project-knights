@@ -96,11 +96,12 @@ Enter 'help' for command list.
             return
         print("{} items returned".format(items['Count']))
         for i in items['Items']:
-            print("{}  {:20.20s} {}   {}".format(
+            print("{}  {:20.20s} {}   {}    {}".format(
                 i['music_id'],
                 i['Artist'],
                 i['SongTitle'],
-                i['upvotes']))
+                i['upvotes'],
+                i['genre']))
 
     def do_create(self, arg):
         """
@@ -111,12 +112,13 @@ Enter 'help' for command list.
         artist: string
         title: string
         upvotes: string
+        genre: string
 
-        Both parameters can be quoted by either single or double quotes.
+        All parameters can be quoted by either single or double quotes.
 
         Examples
         --------
-        create 'Steely Dan'  "Everyone's Gone to the Movies" "Upvotes"
+        create 'Steely Dan'  "Everyone's Gone to the Movies" "49" "pop"
             Quote the apostrophe with double-quotes.
 
         create Chumbawamba Tubthumping
@@ -127,7 +129,8 @@ Enter 'help' for command list.
         payload = {
             'Artist': args[0],
             'SongTitle': args[1],
-            'upvotes': args[2]
+            'upvotes': args[2],
+            'genre': args[3]
         }
         r = requests.post(
             url,
@@ -163,6 +166,38 @@ Enter 'help' for command list.
         )
         print(r.json())
 
+    def do_genre(self,arg):
+        """
+        Filter songs in the database according to genre.
+
+        Parameters
+        ----------
+        genre - genre
+
+        
+        Examples
+        --------
+        genre pop
+        """
+        url = get_url(self.name, self.port)
+        
+        args = parse_quoted_strings(arg)
+        url=url+"v1/"+args[0]
+        r = requests.get(
+            url,
+            headers={'Authorization': DEFAULT_AUTH}
+        )
+        items = r.json()
+        if 'Count' not in items:
+            print("0 items returned")
+            return
+        print("{} items returned".format(items['Count']))
+        for i in items['Items']:
+            print("{:20.20s} {}   {}    {}".format(
+                i['Artist'],
+                i['SongTitle'],
+                i['upvotes'],
+                i['genre']))
 
     def do_delete(self, arg):
         """
