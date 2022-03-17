@@ -19,11 +19,11 @@ from flask import request
 import unique_code
 
 # The path to the file (CSV format) containing the sample data
-DB_PATH = '/data/music.csv'
+DB_PATH = '/data/top10.csv'
 
 # The unique exercise code
 # The EXER environment variable has a value specific to this exercise
-ucode = unique_code.exercise_hash(os.getenv('EXER'))
+# ucode = unique_code.exercise_hash(os.getenv('EXER'))
 
 # The application
 
@@ -39,8 +39,8 @@ def load_db():
     with open(DB_PATH, 'r') as inp:
         rdr = csv.reader(inp)
         next(rdr)  # Skip header line
-        for artist, songtitle, id, rank in rdr:
-            database[id] = (artist, songtitle, rank)
+        for artist, songtitle, id, upvotes in rdr:
+            database[id] = (artist, songtitle, upvotes)
 
 
 @bp.route('/health')
@@ -59,7 +59,7 @@ def list_all():
     response = {
         "Count": len(database),
         "Items":
-            [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id, 'rank':value[2]}
+            [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id, 'upvotes':value[2]}
              for id, value in database.items()]
     }
     return response
@@ -76,7 +76,7 @@ def get_song(music_id):
                 [{'Artist': value[0],
                   'SongTitle': value[1],
                   'music_id': music_id,
-                  'rank': value[2]}]
+                  'upvotes': value[2]}]
         }
     else:
         response = {
@@ -94,13 +94,13 @@ def create_song():
         content = request.get_json()
         Artist = content['Artist']
         SongTitle = content['SongTitle']
-        rank = content['rank']
+        upvotes = content['upvotes']
     except Exception:
         return app.make_response(
             ({"Message": "Error reading arguments"}, 400)
             )
     music_id = str(uuid.uuid4())
-    database[music_id] = (Artist, SongTitle)
+    database[music_id] = (Artist, SongTitle, upvotes)
     response = {
         "music_id": music_id
     }
@@ -121,13 +121,13 @@ def delete_song(music_id):
     return {}
 
 
-@bp.route('/test', methods=['GET'])
-def test():
-    # This value is for user scp756-221
-    if ('1e0715252b48ed14858ae1ce646d67195183ffb8f9dc02d73c82323d8d75f482' !=
-            ucode):
-        raise Exception("Test failed")
-    return {}
+# @bp.route('/test', methods=['GET'])
+# def test():
+#     # This value is for user scp756-221
+#     if ('1e0715252b48ed14858ae1ce646d67195183ffb8f9dc02d73c82323d8d75f482' !=
+#             ucode):
+#         raise Exception("Test failed")
+#     return {}
 
 
 @bp.route('/shutdown', methods=['GET'])
@@ -148,6 +148,6 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     load_db()
-    app.logger.error("Unique code: {}".format(ucode))
+    # app.logger.error("Unique code: {}".format(ucode))
     p = int(sys.argv[1])
     app.run(host='0.0.0.0', port=p, threaded=True)
