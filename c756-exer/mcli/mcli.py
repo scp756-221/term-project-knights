@@ -100,7 +100,7 @@ Enter 'help' for command list.
                 i['music_id'],
                 i['Artist'],
                 i['SongTitle'],
-                i['rank']))
+                i['upvotes']))
 
     def do_create(self, arg):
         """
@@ -110,12 +110,13 @@ Enter 'help' for command list.
         ----------
         artist: string
         title: string
+        upvotes: string
 
         Both parameters can be quoted by either single or double quotes.
 
         Examples
         --------
-        create 'Steely Dan'  "Everyone's Gone to the Movies"
+        create 'Steely Dan'  "Everyone's Gone to the Movies" "Upvotes"
             Quote the apostrophe with double-quotes.
 
         create Chumbawamba Tubthumping
@@ -125,7 +126,8 @@ Enter 'help' for command list.
         args = parse_quoted_strings(arg)
         payload = {
             'Artist': args[0],
-            'SongTitle': args[1]
+            'SongTitle': args[1],
+            'upvotes': args[2]
         }
         r = requests.post(
             url,

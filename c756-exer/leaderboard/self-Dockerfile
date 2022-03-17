@@ -1,4 +1,4 @@
-# Build a self-contained S2 image with its
+# Build a self-contained L1 image with its
 # initial music list already in the image.
 # Such an image can be run anywhere without
 # mapping an external volume. 
@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r leaderboard-requirements.txt
 COPY app.py unique_code.py .
 
 RUN mkdir -p /data
-COPY music.csv /data
+COPY top10.csv /data
 
 #VOLUME /data
 EXPOSE 30001

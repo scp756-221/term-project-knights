@@ -1,7 +1,3 @@
-## Assignment Test Status
+## What does this app do?
 
-![Assignment 1 CI](https://github.com/akshita2810/c756-exer/actions/workflows/ci-a1.yml/badge.svg)
-
-![Assignment 2 CI](https://github.com/akshita2810/c756-exer/actions/workflows/ci-a2.yml/badge.svg)
-
-![Assignment 3 CI](https://github.com/akshita2810/c756-exer/actions/workflows/ci-a3.yml/badge.svg)
+This app is to read top 10 songs by upvotes
