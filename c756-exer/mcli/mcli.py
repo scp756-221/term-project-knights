@@ -136,6 +136,34 @@ Enter 'help' for command list.
         )
         print(r.json())
 
+    def do_upvote(self,arg):
+        """
+        Upvote a song in the database.
+
+        Parameters
+        ----------
+        id - music id
+
+        
+        Examples
+        --------
+        upvote 27sn189e6201720ws
+        """
+        url = get_url(self.name, self.port)
+        
+        args = parse_quoted_strings(arg)
+        payload = {
+            'music_id':arg[0]
+        }
+        url=url+args[0]
+        r = requests.post(
+            url,
+            json=payload,
+            headers={'Authorization': DEFAULT_AUTH}
+        )
+        print(r.json())
+
+
     def do_delete(self, arg):
         """
         Delete a song.
@@ -164,21 +192,21 @@ Enter 'help' for command list.
         """
         return True
 
-    def do_test(self, arg):
-        """
-        Run a test stub on the music server.
-        """
-        url = get_url(self.name, self.port)
-        r = requests.get(
-            url+'test',
-            headers={'Authorization': DEFAULT_AUTH}
-            )
-        if r.status_code != 200:
-            print("Non-successful status code:", r.status_code)
+    # def do_test(self, arg):
+    #     """
+    #     Run a test stub on the music server.
+    #     """
+    #     url = get_url(self.name, self.port)
+    #     r = requests.get(
+    #         url+'test',
+    #         headers={'Authorization': DEFAULT_AUTH}
+    #         )
+    #     if r.status_code != 200:
+    #         print("Non-successful status code:", r.status_code)
 
     def do_shutdown(self, arg):
         """
-        Tell the music cerver to shut down.
+        Tell the music server to shut down.
         """
         url = get_url(self.name, self.port)
         r = requests.get(
