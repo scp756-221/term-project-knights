@@ -39,7 +39,7 @@ def load_db():
     with open(DB_PATH, 'r') as inp:
         rdr = csv.reader(inp)
         next(rdr)  # Skip header line
-        for artist, songtitle, id in rdr:
+        for artist, songtitle, id, rank in rdr:
             database[id] = (artist, songtitle)
 
 
