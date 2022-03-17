@@ -39,8 +39,8 @@ def load_db():
     with open(DB_PATH, 'r') as inp:
         rdr = csv.reader(inp)
         next(rdr)  # Skip header line
-        for artist, songtitle, id, upvotes in rdr:
-            database[id] = (artist, songtitle, upvotes)
+        for artist, songtitle, id, upvotes, genre in rdr:
+            database[id] = (artist, songtitle, upvotes, genre)
 
 
 @bp.route('/health')
@@ -59,7 +59,7 @@ def list_all():
     response = {
         "Count": len(database),
         "Items":
-            [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id, 'upvotes':value[2]}
+            [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id, 'upvotes':value[2], 'genre':value[3]}
              for id, value in database.items()]
     }
     return response
@@ -76,7 +76,8 @@ def get_song(music_id):
                 [{'Artist': value[0],
                   'SongTitle': value[1],
                   'music_id': music_id,
-                  'upvotes': value[2]}]
+                  'upvotes': value[2],
+                  'genre': value[3]}]
         }
     else:
         response = {
@@ -84,6 +85,24 @@ def get_song(music_id):
             "Items": []
         }
         return app.make_response((response, 404))
+    return response
+
+@bp.route('/v1/<genre>', methods=['GET'])
+def get_song_genre(genre):
+    global database
+    data = []
+    print(list(database.values()))
+    for i in list(database.values()):
+        if i[3]== genre:
+            data.append([i[0], i[1], i[2], i[3]])
+    print(data)
+    response = {
+    "Count": len(data),
+    "Items":
+        [{'Artist': value[0], 'SongTitle': value[1], 'upvotes':value[2], 'genre':value[3]}
+        for value in data]
+    }
+    
     return response
 
 
@@ -95,12 +114,13 @@ def create_song():
         Artist = content['Artist']
         SongTitle = content['SongTitle']
         upvotes = content['upvotes']
+        genre = content['genre']
     except Exception:
         return app.make_response(
             ({"Message": "Error reading arguments"}, 400)
             )
     music_id = str(uuid.uuid4())
-    database[music_id] = (Artist, SongTitle, upvotes)
+    database[music_id] = (Artist, SongTitle, upvotes, genre)
     response = {
         "music_id": music_id
     }
@@ -129,7 +149,7 @@ def upvote(music_id):
             value = database[music_id]
             upvotes = value[2]
             upvotes = str(int(upvotes)+1)
-            database[music_id] = (value[0], value[1], upvotes)
+            database[music_id] = (value[0], value[1], upvotes, value[3])
             response = {
         "music_id": music_id
     }
