@@ -9,6 +9,7 @@ COPY app.py app.py
 COPY top10.csv top10.csv
 COPY unique_code.py .
 
+VOLUME /data
 EXPOSE 30003
 
 # Used to generate unique hash code for "test" operation

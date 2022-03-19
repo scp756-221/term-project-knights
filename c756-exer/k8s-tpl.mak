@@ -69,11 +69,11 @@ provision: istio prom deploy
 # --- deploy: Deploy and monitor the three microservices
 # Use `provision` to deploy the entire stack (including Istio, Prometheus, ...).
 # This target only deploys the sample microservices
-deploy: appns gw s1 s2 db monitoring
+deploy: appns gw s1 s2 db lb monitoring
 	$(KC) -n $(APP_NS) get gw,vs,deploy,svc,pods
 
 # --- rollout: Rollout new deployments of all microservices
-rollout: rollout-s1 rollout-s2 rollout-db
+rollout: rollout-s1 rollout-s2 rollout-db rollout-lb
 
 # --- rollout-s1: Rollout a new deployment of S1
 rollout-s1: s1
@@ -83,6 +83,11 @@ rollout-s1: s1
 rollout-s2: $(LOG_DIR)/s2-$(S2_VER).repo.log  cluster/s2-dpl-$(S2_VER).yaml
 	$(KC) -n $(APP_NS) apply -f cluster/s2-dpl-$(S2_VER).yaml | tee $(LOG_DIR)/rollout-s2.log
 	$(KC) rollout -n $(APP_NS) restart deployment/cmpt756s2-$(S2_VER) | tee -a $(LOG_DIR)/rollout-s2.log
+
+# --- rollout-s1: Rollout a new deployment of S1
+rollout-lb: $(LOG_DIR)/lb.repo.log  cluster/lb-dpl.yaml
+	$(KC) -n $(APP_NS) apply -f cluster/lb-dpl.yaml | tee $(LOG_DIR)/rollout-lb.log
+	$(KC) rollout -n $(APP_NS) restart deployment/cmpt756lb | tee -a $(LOG_DIR)/rollout-lb.log
 
 # --- rollout-db: Rollout a new deployment of DB
 rollout-db: db
@@ -94,6 +99,7 @@ health-off:
 	$(KC) -n $(APP_NS) apply -f cluster/s1-nohealth.yaml
 	$(KC) -n $(APP_NS) apply -f cluster/s2-nohealth.yaml
 	$(KC) -n $(APP_NS) apply -f cluster/db-nohealth.yaml
+	$(KC) -n $(APP_NS) apply -f cluster/lb-nohealth.yaml
 
 # --- scratch: Delete the microservices and everything else in application NS
 scratch: clean
@@ -109,7 +115,7 @@ scratch: clean
 
 # --- clean: Delete all the application log files
 clean:
-	/bin/rm -f $(LOG_DIR)/{s1,s2,db,gw,monvs}*.log $(LOG_DIR)/rollout*.log
+	/bin/rm -f $(LOG_DIR)/{s1,s2,db,lb,gw,monvs}*.log $(LOG_DIR)/rollout*.log
 
 # --- dashboard: Start the standard Kubernetes dashboard
 # NOTE:  Before invoking this, the dashboard must be installed and a service account created
@@ -135,6 +141,9 @@ log-s2:
 log-db:
 	$(KC) -n $(APP_NS) logs deployment/cmpt756db --container cmpt756db
 
+log-lb:
+	$(KC) -n $(APP_NS) logs deployment/cmpt756lb --container cmpt756lb
+
 
 # --- shell-X: hint for shell into a particular service
 shell-s1:
@@ -148,6 +157,10 @@ shell-s2:
 shell-db:
 	@echo Use the following command line to drop into the db service:
 	@echo   $(KC) -n $(APP_NS) exec -it deployment/cmpt756db --container cmpt756db -- bash
+
+shell-lb:
+	@echo Use the following command line to drop into the lb service:
+	@echo   $(KC) -n $(APP_NS) exec -it deployment/cmpt756lb --container cmpt756lb -- bash
 
 # --- lsa: List services in all namespaces
 lsa: showcontext
@@ -177,6 +190,7 @@ loader: dynamodb-init $(LOG_DIR)/loader.repo.log cluster/loader.yaml
 	$(KC) -n $(APP_NS) delete --ignore-not-found=true jobs/cmpt756loader
 	tools/build-configmap.sh gatling/resources/users.csv cluster/users-header.yaml | kubectl -n $(APP_NS) apply -f -
 	tools/build-configmap.sh gatling/resources/music.csv cluster/music-header.yaml | kubectl -n $(APP_NS) apply -f -
+	tools/build-configmap.sh gatling/resources/top10.csv cluster/lb-header.yaml | kubectl -n $(APP_NS) apply -f -
 	$(KC) -n $(APP_NS) apply -f cluster/loader.yaml | tee $(LOG_DIR)/loader.log
 
 # --- dynamodb-init: set up our DynamoDB tables
@@ -287,11 +301,11 @@ s2: rollout-s2 cluster/s2-svc.yaml cluster/s2-sm.yaml cluster/s2-vs.yaml
 	$(KC) -n $(APP_NS) apply -f cluster/s2-sm.yaml | tee -a $(LOG_DIR)/s2.log
 	$(KC) -n $(APP_NS) apply -f cluster/s2-vs.yaml | tee -a $(LOG_DIR)/s2.log
 
-# Update leaderboard and associated monitoring, rebuilding if necessary
-leaderboard: rollout-leaderboard cluster/leaderboard-svc.yaml cluster/leaderboard-sm.yaml cluster/leaderboard-vs.yaml
-	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-svc.yaml | tee $(LOG_DIR)/leaderboard.log
-	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-sm.yaml | tee -a $(LOG_DIR)/leaderboard.log
-	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-vs.yaml | tee -a $(LOG_DIR)/leaderboard.log
+# Update lb and associated monitoring, rebuilding if necessary
+lb: rollout-lb cluster/lb-svc.yaml cluster/lb-sm.yaml cluster/lb-vs.yaml
+	$(KC) -n $(APP_NS) apply -f cluster/lb-svc.yaml | tee $(LOG_DIR)/lb.log
+	$(KC) -n $(APP_NS) apply -f cluster/lb-sm.yaml | tee -a $(LOG_DIR)/lb.log
+	$(KC) -n $(APP_NS) apply -f cluster/lb-vs.yaml | tee -a $(LOG_DIR)/lb.log
 
 # Update DB and associated monitoring, rebuilding if necessary
 db: $(LOG_DIR)/db.repo.log cluster/awscred.yaml cluster/dynamodb-service-entry.yaml cluster/db.yaml cluster/db-sm.yaml cluster/db-vs.yaml
@@ -302,7 +316,7 @@ db: $(LOG_DIR)/db.repo.log cluster/awscred.yaml cluster/dynamodb-service-entry.y
 	$(KC) -n $(APP_NS) apply -f cluster/db-vs.yaml | tee -a $(LOG_DIR)/db.log
 
 # Build & push the images up to the CR
-cri: $(LOG_DIR)/s1.repo.log $(LOG_DIR)/s2-$(S2_VER).repo.log $(LOG_DIR)/db.repo.log
+cri: $(LOG_DIR)/s1.repo.log $(LOG_DIR)/s2-$(S2_VER).repo.log $(LOG_DIR)/db.repo.log $(LOG_DIR)/lb.repo.log
 
 # Build the s1 service
 $(LOG_DIR)/s1.repo.log: s1/Dockerfile s1/app.py s1/requirements.txt
@@ -315,6 +329,12 @@ $(LOG_DIR)/s2-$(S2_VER).repo.log: s2/$(S2_VER)/Dockerfile s2/$(S2_VER)/app.py s2
 	make -f k8s.mak --no-print-directory registry-login
 	$(DK) build $(ARCH) -t $(CREG)/$(REGID)/cmpt756s2:$(S2_VER) s2/$(S2_VER) | tee $(LOG_DIR)/s2-$(S2_VER).img.log
 	$(DK) push $(CREG)/$(REGID)/cmpt756s2:$(S2_VER) | tee $(LOG_DIR)/s2-$(S2_VER).repo.log
+
+# Build the lb service
+$(LOG_DIR)/lb.repo.log: lb/Dockerfile lb/app.py lb/requirements.txt
+	make -f k8s.mak --no-print-directory registry-login
+	$(DK) build $(ARCH) -t $(CREG)/$(REGID)/cmpt756lb:$(APP_VER_TAG) lb | tee $(LOG_DIR)/lb.img.log
+	$(DK) push $(CREG)/$(REGID)/cmpt756lb:$(APP_VER_TAG) | tee $(LOG_DIR)/lb.repo.log
 
 # Build the db service
 $(LOG_DIR)/db.repo.log: db/Dockerfile db/app.py db/requirements.txt
@@ -334,6 +354,7 @@ cr: registry-login
 	$(DK) push $(CREG)/$(REGID)/cmpt756s1:$(APP_VER_TAG) | tee $(LOG_DIR)/s1.repo.log
 	$(DK) push $(CREG)/$(REGID)/cmpt756s2:$(S2_VER) | tee $(LOG_DIR)/s2.repo.log
 	$(DK) push $(CREG)/$(REGID)/cmpt756db:$(APP_VER_TAG) | tee $(LOG_DIR)/db.repo.log
+	$(DK) push $(CREG)/$(REGID)/cmpt756lb:$(APP_VER_TAG) | tee $(LOG_DIR)/lb.repo.log
 
 # ---------------------------------------------------------------------------------------
 # Handy bits for exploring the container images... not necessary

@@ -35,7 +35,7 @@ spec:
       serviceAccountName: svc-lb
       containers:
       - name: cmpt756lb
-        image: 'ZZ-CR-ID/ZZ-REG-ID/cmpt756lb:v1'
+        image: 'ghcr.io/projects-g/cmpt756lb:v1'
         imagePullPolicy: Always
         env:
           - name: EXER
