@@ -17,6 +17,7 @@ from flask import request
 
 # Local modules
 import unique_code
+import boto3
 
 # The path to the file (CSV format) containing the sample data
 DB_PATH = '/data/top10.csv'
@@ -33,15 +34,37 @@ bp = Blueprint('app', __name__)
 
 database = {}
 
+#
+# def load_db():
+#     global database
+#     with open(DB_PATH, 'r') as inp:
+#         rdr = csv.reader(inp)
+#         next(rdr)  # Skip header line
+#         for artist, songtitle, id, upvotes, genre in rdr:
+#             database[id] = (artist, songtitle, upvotes, genre)
 
-def load_db():
-    global database
-    with open(DB_PATH, 'r') as inp:
-        rdr = csv.reader(inp)
-        next(rdr)  # Skip header line
-        for artist, songtitle, id, upvotes, genre in rdr:
-            database[id] = (artist, songtitle, upvotes, genre)
+db = {
+    "name": "http://cmpt756db:30002/api/v1/datastore",
+    "endpoint": [
+        "read",
+        "write",
+        "delete"
+    ]
+}
 
+region = os.getenv('AWS_REGION', 'us-west-2')
+
+# these must be present; if they are missing, we should probably bail now
+# access_key = os.getenv('AWS_ACCESS_KEY_ID')
+# secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+
+# Must be presented to authorize call to `/load`
+loader_token = os.getenv('SVC_LOADER_TOKEN')
+
+dynamodb = boto3.resource(
+        'dynamodb',
+        endpoint_url='http://localhost:8000',
+        region_name=region)
 
 @bp.route('/health')
 def health():
@@ -55,14 +78,26 @@ def readiness():
 
 @bp.route('/', methods=['GET'])
 def list_all():
-    global database
-    response = {
-        "Count": len(database),
-        "Items":
-            [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id, 'upvotes':value[2], 'genre':value[3]}
-             for id, value in database.items()]
-    }
-    return response
+    # global database
+    table = dynamodb.Table('Leaderboard-shivekchhabra')
+    print("===========")
+    print("here")
+    print("=============")
+    print(table.get_items())
+    # items = table.get_item(
+    #         Key={
+    #             'uuid' : 1,
+    #         }
+    #     )
+    # print(items)
+
+    # response = {
+    #     "Count": len(database),
+    #     "Items":
+    #         [{'Artist': value[0], 'SongTitle': value[1], 'music_id': id, 'upvotes':value[2], 'genre':value[3]}
+    #          for id, value in database.items()]
+    # }
+    return 'table'
 
 
 @bp.route('/<music_id>', methods=['GET'])
@@ -194,7 +229,7 @@ if __name__ == '__main__':
         logging.error("missing port arg 1")
         sys.exit(-1)
 
-    load_db()
+    # load_db()
     # app.logger.error("Unique code: {}".format(ucode))
     p = int(sys.argv[1])
     app.run(host='0.0.0.0', port=p, threaded=True)
