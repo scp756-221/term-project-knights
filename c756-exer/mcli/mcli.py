@@ -33,7 +33,7 @@ def parse_args():
 
 
 def get_url(name, port):
-    return "http://{}:{}/api/v1/music/".format(name, port)
+    return "http://{}:{}/api/v1/leaderboard/".format(name, port)
 
 
 def parse_quoted_strings(arg):
@@ -91,17 +91,22 @@ Enter 'help' for command list.
         if r.status_code != 200:
             print("Non-successful status code:", r.status_code)
         items = r.json()
-        if 'Count' not in items:
-            print("0 items returned")
-            return
-        print("{} items returned".format(items['Count']))
-        for i in items['Items']:
-            print("{}  {:20.20s} {}   {}    {}".format(
-                i['music_id'],
-                i['Artist'],
-                i['SongTitle'],
-                i['upvotes'],
-                i['genre']))
+        try:
+            if 'Count' in items.keys():
+                val=items['Items']
+                print("{} items returned".format(items['Count']))
+                # sorted_items = sorted(items['Items'], key=lambda d: int(d['music_id']))
+            else:
+                val=[items['Item']]
+            for i in val:
+                print("{}  {:20.20s} {}   {}    {}".format(
+                    i['music_id'],
+                    i['Artist'],
+                    i['SongTitle'],
+                    i['upvotes'],
+                    i['genre']))
+        except Exception as e:
+            print("No data found")
 
     def do_create(self, arg):
         """
@@ -132,12 +137,13 @@ Enter 'help' for command list.
             'upvotes': args[2],
             'genre': args[3]
         }
+
         r = requests.post(
             url,
             json=payload,
             headers={'Authorization': DEFAULT_AUTH}
         )
-        print(r.json())
+        print("Song added!")
 
     def do_upvote(self,arg):
         """
@@ -226,18 +232,6 @@ Enter 'help' for command list.
         Quit the program.
         """
         return True
-
-    # def do_test(self, arg):
-    #     """
-    #     Run a test stub on the music server.
-    #     """
-    #     url = get_url(self.name, self.port)
-    #     r = requests.get(
-    #         url+'test',
-    #         headers={'Authorization': DEFAULT_AUTH}
-    #         )
-    #     if r.status_code != 200:
-    #         print("Non-successful status code:", r.status_code)
 
     def do_shutdown(self, arg):
         """
