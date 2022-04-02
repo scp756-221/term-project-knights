@@ -1,7 +1,7 @@
 import boto3
 
 
-def create_movie_table(dynamodb=None):
+def create_leader_table(dynamodb=None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
 
@@ -28,6 +28,8 @@ def create_movie_table(dynamodb=None):
     return table
 
 
+
+
 if __name__ == '__main__':
-    leader_table = create_movie_table()
+    leader_table = create_leader_table()
     print("Table status:", leader_table.table_status)
