@@ -1,6 +1,6 @@
 ### How to run:
 After taking the clone of the repo,
-open 3 terminal windows.
+open 4 terminal windows.
 
 #### In the first one we run the dynamodb:
 
@@ -8,13 +8,20 @@ open 3 terminal windows.
 
 java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb</code></pre>
 
-#### In the second one we run the server on port 30001:
+#### In the second one we create the table (not needed currently with db):
+
+<pre><code>cd leaderboard/
+
+python create_table.py</code></pre>
+
+
+#### In the third one we run the server on port 30001:
 
 <pre><code>cd leaderboard/
 
 python app.py 30001</code></pre>
 
-#### In the third one we run the mcli to listen on port 30001:
+#### In the fourth one we run the mcli to listen on port 30001:
 
 <pre><code>cd mcli/
 
