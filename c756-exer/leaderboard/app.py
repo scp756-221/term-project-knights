@@ -1,6 +1,6 @@
 """
 SFU CMPT 756
-Sample STANDALONE application---music service.
+Sample STANDALONE application---leaderboard service.
 """
 
 # Standard library modules
@@ -21,15 +21,6 @@ import boto3
 import requests
 import simplejson as json
 import decimal
-
-# The path to the file (CSV format) containing the sample data
-DB_PATH = '/data/top10.csv'
-
-# The unique exercise code
-# The EXER environment variable has a value specific to this exercise
-# ucode = unique_code.exercise_hash(os.getenv('EXER'))
-
-# The application
 
 app = Flask(__name__)
 
