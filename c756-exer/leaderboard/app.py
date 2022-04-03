@@ -32,7 +32,8 @@ db = {
     "endpoint": [
         "read",
         "write",
-        "delete"
+        "delete",
+        "readall"
     ]
 }
 bp = Blueprint('app', __name__)
@@ -63,8 +64,8 @@ def list_all():
         return Response(json.dumps({"error": "missing auth"}),
                         status=401,
                         mimetype='application/json')
-    payload = {"objtype": "music", "objkey": "c2573193-f333-49e2-abec-182915747756"}
-    url = db['name'] + '/' + db['endpoint'][0]
+    payload = {"objtype": "music"}
+    url = db['name'] + '/' + db['endpoint'][3]
     response = requests.get(
         url,
         params=payload,

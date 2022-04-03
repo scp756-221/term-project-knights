@@ -105,6 +105,17 @@ def read():
     return response
 
 
+@bp.route('/readall', methods=['GET'])
+def read():
+    headers = request.headers  # noqa: F841
+    # check header here
+    objtype = urllib.parse.unquote_plus(request.args.get('objtype'))
+    table_name = objtype.capitalize()+"-ZZ-REG-ID"
+    table = dynamodb.Table(table_name)
+    response = table.scan(Select='ALL_ATTRIBUTES')
+    return response.json()
+
+
 @bp.route('/write', methods=['POST'])
 def write():
     headers = request.headers  # noqa: F841
