@@ -17,6 +17,8 @@ from put_item import put_music
 # Local modules
 import unique_code
 import boto3
+import json
+import decimal
 
 # The path to the file (CSV format) containing the sample data
 DB_PATH = '/data/top10.csv'
@@ -65,7 +67,17 @@ def readiness():
 @bp.route('/', methods=['GET'])
 def list_all():
     table = dynamodb.Table('Leaderboard')
-    return table.scan()
+    print("hi")
+    print(table.scan())
+    print("bye")
+    a=table.scan()
+    class DecimalEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, decimal.Decimal):
+                    return int(obj)
+                return super(DecimalEncoder, self).default(obj)
+    a=json.dumps(a,cls=DecimalEncoder)
+    return a
 
 
 @bp.route('/<music_id>', methods=['GET'])
