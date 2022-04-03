@@ -16,7 +16,7 @@
 
 # These will be filled in by template processor
 CREG=ghcr.io
-REGID=shivekchhabra
+REGID=projects-g
 AWS_REGION=us-west-2
 
 # Keep all the logs out of main directory
@@ -69,7 +69,7 @@ provision: istio prom deploy
 # --- deploy: Deploy and monitor the three microservices
 # Use `provision` to deploy the entire stack (including Istio, Prometheus, ...).
 # This target only deploys the sample microservices
-deploy: appns gw s1 s2 db monitoring
+deploy: appns gw s1 s2 leaderboard db monitoring
 	$(KC) -n $(APP_NS) get gw,vs,deploy,svc,pods
 
 # --- rollout: Rollout new deployments of all microservices
@@ -88,12 +88,18 @@ rollout-s2: $(LOG_DIR)/s2-$(S2_VER).repo.log  cluster/s2-dpl-$(S2_VER).yaml
 rollout-db: db
 	$(KC) rollout -n $(APP_NS) restart deployment/cmpt756db
 
+# --- rollout-leaderboard: Rollout a new deployment of leaderboard
+rollout-leaderboard: $(LOG_DIR)/leaderboard.repo.log  cluster/leaderboard-dpl.yaml
+	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-dpl.yaml | tee $(LOG_DIR)/rollout-leaderboard.log
+	$(KC) rollout -n $(APP_NS) restart deployment/cmpt756leaderboard:$(APP_VER_TAG) | tee -a $(LOG_DIR)/rollout-leaderboard.log
+
 # --- health-off: Turn off the health monitoring for the three microservices
 # If you don't know exactly why you want to do this---don't
 health-off:
 	$(KC) -n $(APP_NS) apply -f cluster/s1-nohealth.yaml
 	$(KC) -n $(APP_NS) apply -f cluster/s2-nohealth.yaml
 	$(KC) -n $(APP_NS) apply -f cluster/db-nohealth.yaml
+	$(KC) -n $(APP_NS) apply -f cluster/leaderboard-nohealth.yaml
 
 # --- scratch: Delete the microservices and everything else in application NS
 scratch: clean
@@ -109,7 +115,7 @@ scratch: clean
 
 # --- clean: Delete all the application log files
 clean:
-	/bin/rm -f $(LOG_DIR)/{s1,s2,db,gw,monvs}*.log $(LOG_DIR)/rollout*.log
+	/bin/rm -f $(LOG_DIR)/{s1,s2,leaderboard,db,gw,monvs}*.log $(LOG_DIR)/rollout*.log
 
 # --- dashboard: Start the standard Kubernetes dashboard
 # NOTE:  Before invoking this, the dashboard must be installed and a service account created
@@ -135,6 +141,9 @@ log-s2:
 log-db:
 	$(KC) -n $(APP_NS) logs deployment/cmpt756db --container cmpt756db
 
+log-leaderboard:
+	$(KC) -n $(APP_NS) logs deployment/cmpt756leaderboard --container cmpt756leaderboard
+
 
 # --- shell-X: hint for shell into a particular service
 shell-s1:
@@ -148,6 +157,10 @@ shell-s2:
 shell-db:
 	@echo Use the following command line to drop into the db service:
 	@echo   $(KC) -n $(APP_NS) exec -it deployment/cmpt756db --container cmpt756db -- bash
+
+shell-leaderboard:
+	@echo Use the following command line to drop into the leaderboard service:
+	@echo   $(KC) -n $(APP_NS) exec -it deployment/cmpt756leaderboard --container cmpt756leaderboard -- bash
 
 # --- lsa: List services in all namespaces
 lsa: showcontext
@@ -187,14 +200,14 @@ dynamodb-init: $(LOG_DIR)/dynamodb-init.log
 $(LOG_DIR)/dynamodb-init.log: cluster/cloudformationdynamodb.json
 	@# "|| true" suffix because command fails when stack already exists
 	@# (even with --on-failure DO_NOTHING, a nonzero error code is returned)
-	$(AWS) cloudformation create-stack --stack-name db-shivekchhabra --template-body file://$< || true | tee $(LOG_DIR)/dynamodb-init.log
+	$(AWS) cloudformation create-stack --stack-name db-projects-g --template-body file://$< || true | tee $(LOG_DIR)/dynamodb-init.log
 	# Must give DynamoDB time to create the tables before running the loader
 	sleep 20
 
 # --- dynamodb-stop: Stop the AWS DynamoDB service
 #
 dynamodb-clean:
-	$(AWS) cloudformation delete-stack --stack-name db-shivekchhabra || true | tee $(LOG_DIR)/dynamodb-clean.log
+	$(AWS) cloudformation delete-stack --stack-name db-projects-g || true | tee $(LOG_DIR)/dynamodb-clean.log
 	@# Rename DynamoDB log so dynamodb-init will force a restart but retain the log
 	/bin/mv -f $(LOG_DIR)/dynamodb-init.log $(LOG_DIR)/dynamodb-init-old.log || true
 
@@ -302,7 +315,7 @@ db: $(LOG_DIR)/db.repo.log cluster/awscred.yaml cluster/dynamodb-service-entry.y
 	$(KC) -n $(APP_NS) apply -f cluster/db-vs.yaml | tee -a $(LOG_DIR)/db.log
 
 # Build & push the images up to the CR
-cri: $(LOG_DIR)/s1.repo.log $(LOG_DIR)/s2-$(S2_VER).repo.log $(LOG_DIR)/db.repo.log
+cri: $(LOG_DIR)/s1.repo.log $(LOG_DIR)/s2-$(S2_VER).repo.log $(LOG_DIR)/db.repo.log $(LOG_DIR)/leaderboard.repo.log
 
 # Build the s1 service
 $(LOG_DIR)/s1.repo.log: s1/Dockerfile s1/app.py s1/requirements.txt
@@ -322,6 +335,12 @@ $(LOG_DIR)/db.repo.log: db/Dockerfile db/app.py db/requirements.txt
 	$(DK) build $(ARCH) -t $(CREG)/$(REGID)/cmpt756db:$(APP_VER_TAG) db | tee $(LOG_DIR)/db.img.log
 	$(DK) push $(CREG)/$(REGID)/cmpt756db:$(APP_VER_TAG) | tee $(LOG_DIR)/db.repo.log
 
+# Build the leaderboard service
+$(LOG_DIR)/leaderboard.repo.log: leaderboard/Dockerfile leaderboard/app.py leaderboard/requirements.txt
+	make -f k8s.mak --no-print-directory registry-login
+	$(DK) build $(ARCH) -t $(CREG)/$(REGID)/cmpt756leaderboard:$(APP_VER_TAG) leaderboard | tee $(LOG_DIR)/leaderboard.img.log
+	$(DK) push $(CREG)/$(REGID)/cmpt756leaderboard:$(APP_VER_TAG) | tee $(LOG_DIR)/leaderboard.repo.log
+
 # Build the loader
 $(LOG_DIR)/loader.repo.log: loader/app.py loader/requirements.txt loader/Dockerfile registry-login
 	$(DK) build $(ARCH) -t $(CREG)/$(REGID)/cmpt756loader:$(LOADER_VER) loader  | tee $(LOG_DIR)/loader.img.log
@@ -333,6 +352,7 @@ $(LOG_DIR)/loader.repo.log: loader/app.py loader/requirements.txt loader/Dockerf
 cr: registry-login
 	$(DK) push $(CREG)/$(REGID)/cmpt756s1:$(APP_VER_TAG) | tee $(LOG_DIR)/s1.repo.log
 	$(DK) push $(CREG)/$(REGID)/cmpt756s2:$(S2_VER) | tee $(LOG_DIR)/s2.repo.log
+	$(DK) push $(CREG)/$(REGID)/cmpt756leaderboard:$(APP_VER_TAG) | tee $(LOG_DIR)/leaderboard.repo.log
 	$(DK) push $(CREG)/$(REGID)/cmpt756db:$(APP_VER_TAG) | tee $(LOG_DIR)/db.repo.log
 
 # ---------------------------------------------------------------------------------------

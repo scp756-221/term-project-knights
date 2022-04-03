@@ -15,44 +15,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cmpt756lb-v1
+  name: cmpt756leaderboard
   labels:
-    app: cmpt756lb
+    app: cmpt756leaderboard
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cmpt756lb
+      app: cmpt756leaderboard
       version: v1
   template:
     metadata:
-      name: service2-pod
+      name: leaderboard-pod
       labels:
-        app: cmpt756lb
+        app: cmpt756leaderboard
         version: v1
     spec:
-      serviceAccountName: svc-lb
+      serviceAccountName: svc-leaderboard
       containers:
-      - name: cmpt756lb
-        image: 'ZZ-CR-ID/ZZ-REG-ID/cmpt756lb:v1'
+      - name: cmpt756leaderboard
+        image: 'ZZ-CR-ID/ZZ-REG-ID/cmpt756leaderboard:v1'
         imagePullPolicy: Always
         env:
           - name: EXER
             value: v1
         ports:
-        - containerPort: 30002
+        - containerPort: 30003
         livenessProbe:
           httpGet:
-            path: /api/v1/music/health
-            port: 30002
+            path: /api/v1/leaderboard/health
+            port: 30003
           initialDelaySeconds: 10
           periodSeconds: 5
           failureThreshold: 5
         readinessProbe:
           httpGet:
-            path: /api/v1/music/readiness
-            port: 30002
+            path: /api/v1/leaderboard/readiness
+            port: 30003
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 2

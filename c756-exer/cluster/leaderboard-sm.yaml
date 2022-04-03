@@ -1,9 +1,9 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: cmpt756lb
+  name: cmpt756leaderboard
   labels:
-    app: cmpt756lb
+    app: cmpt756leaderboard
     release: c756
 spec:
   namespaceSelector:
@@ -11,7 +11,7 @@ spec:
     - c756ns
   selector:
     matchLabels:
-      app: cmpt756lb
+      app: cmpt756leaderboard
   endpoints:
   - port: http
     path: /metrics
