@@ -6,7 +6,8 @@ Simple command-line interface to music service
 import argparse
 import cmd
 import re
-
+import json
+import decimal
 # Installed packages
 import requests
 
