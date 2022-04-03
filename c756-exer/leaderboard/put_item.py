@@ -9,12 +9,10 @@ def put_music( music_id,artist,SongTitle,upvotes,genre ,dynamodb=None):
     response = table.put_item(
        Item={
             'music_id': music_id,
-            'info': {
-                'Artist': artist,
-                'SongTitle': SongTitle,
-                'upvotes': upvotes,
-                'genre': genre
-            }
+            'Artist': artist,
+            'SongTitle': SongTitle,
+            'upvotes': upvotes,
+            'genre': genre
             
         }
     )
