@@ -154,13 +154,13 @@ Enter 'help' for command list.
         ----------
         id - music id
 
-        
+
         Examples
         --------
         upvote 27sn189e6201720ws
         """
         url = get_url(self.name, self.port)
-        
+
         args = parse_quoted_strings(arg)
         payload = {
             'music_id':arg[0]
@@ -181,13 +181,13 @@ Enter 'help' for command list.
         ----------
         genre - genre
 
-        
+
         Examples
         --------
         genre pop
         """
         url = get_url(self.name, self.port)
-        
+
         args = parse_quoted_strings(arg)
         url=url+"v1/"+args[0]
         r = requests.get(

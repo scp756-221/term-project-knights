@@ -1,0 +1,68 @@
+#
+# SFU CMPT 756
+#
+# k8s yaml to deploy a service:
+#   1 Deployment - this governs the logic (container)
+#   1 Service - this opens up the logic
+#   1 Service Account - this enable access control
+#
+# Notes:
+#
+# 1. the Service's .spec.ports[0] need to matches the Deployment's
+#    .spec.template.spec.containers[0].ports
+# 2. Deployment's .spec.template.spec.containers.livenessProbe & readinessProbe
+#    can be removed to clean up the logs
+#
+# This script is set up for Github's newly announced (and still beta) container
+# registry to side-step DockerHub's throttling of their free accounts.
+# If you wish to switch back to DockerHub, replace ghcr.io with docker.io
+#
+# TODO: You must run the template processor to fill in the template variables "ZZ-*"
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: cmpt756leaderboard
+  labels:
+    app: cmpt756leaderboard
+spec:
+  ports:
+  - port: 30003
+    name: http
+  selector:
+    app: cmpt756leaderboard
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: svc-leaderboard
+  labels:
+    account: SVC_LEADERBOARD
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmpt756leaderboard
+  labels:
+    app: cmpt756leaderboard
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cmpt756leaderboard
+      version: v1
+  template:
+    metadata:
+      name: leaderboard-pod
+      labels:
+        app: cmpt756leaderboard
+        version: v1
+    spec:
+      serviceAccountName: svc-leaderboard
+      containers:
+      - name: leaderboard
+        image: 'ghcr.io/projects-g/cmpt756leaderboard:latest'
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 30003

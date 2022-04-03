@@ -22,47 +22,47 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cmpt756lb
+  name: cmpt756leaderboard
   labels:
-    app: cmpt756lb
+    app: cmpt756leaderboard
 spec:
   ports:
-  - port: 30001
+  - port: 30003
     name: http
   selector:
-    app: cmpt756lb
+    app: cmpt756leaderboard
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: svc-lb
+  name: svc-leaderboard
   labels:
-    account: SVC_LB
+    account: SVC_LEADERBOARD
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cmpt756lb
+  name: cmpt756leaderboard
   labels:
-    app: cmpt756lb
+    app: cmpt756leaderboard
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cmpt756lb
+      app: cmpt756leaderboard
       version: v1
   template:
     metadata:
-      name: service2-pod
+      name: leaderboard-pod
       labels:
-        app: cmpt756lb
+        app: cmpt756leaderboard
         version: v1
     spec:
-      serviceAccountName: svc-lb
+      serviceAccountName: svc-leaderboard
       containers:
-      - name: service2
-        image: 'ZZ-CR-ID/ZZ-REG-ID/cmpt756lb:latest'
+      - name: leaderboard
+        image: 'ZZ-CR-ID/ZZ-REG-ID/cmpt756leaderboard:latest'
         imagePullPolicy: Always
         ports:
-        - containerPort: 30001
+        - containerPort: 30003
