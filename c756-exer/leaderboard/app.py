@@ -40,13 +40,15 @@ bp = Blueprint('app', __name__)
 
 
 @bp.route('/health')
+@metrics.do_not_track()
 def health():
-    return ""
+    return Response("", status=200, mimetype="application/json")
 
 
 @bp.route('/readiness')
+@metrics.do_not_track()
 def readiness():
-    return ""
+    return Response("", status=200, mimetype="application/json")
 
 
 # class DecimalEncoder(json.JSONEncoder):
