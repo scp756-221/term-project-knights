@@ -50,7 +50,7 @@ def create_user(lname, fname, email, uuid):
     return (response.json())
 
 
-def create_song(artist, title, uuid):
+def create_song(artist, title, uuid, votes, genre):
     """
     Create a song.
     If a record already exists with the same artist and title,
@@ -63,7 +63,9 @@ def create_song(artist, title, uuid):
         json={"objtype": "music",
               "Artist": artist,
               "SongTitle": title,
-              "uuid": uuid})
+              "uuid": uuid,
+              "votes": votes,
+              "genre": genre})
     return (response.json())
 
 
@@ -98,10 +100,12 @@ if __name__ == '__main__':
     with open('{}/music/music.csv'.format(resource_dir), 'r') as inp:
         rdr = csv.reader(inp)
         next(rdr)  # Skip header
-        for artist, title, uuid in rdr:
+        for artist, title, uuid, votes, genre in rdr:
             resp = create_song(artist.strip(),
                                title.strip(),
-                               uuid.strip())
+                               uuid.strip(),
+                               votes.strip(),
+                               genre.strip())
             resp = check_resp(resp, 'music_id')
             if resp is None or resp != uuid:
                 print('Error creating song {} {}, {}'.format(artist,
