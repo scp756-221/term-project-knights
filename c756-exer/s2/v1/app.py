@@ -57,16 +57,16 @@ def readiness():
     return Response("", status=200, mimetype="application/json")
 
 
-@bp.route('/', methods=['GET'])
-def list_all():
-    headers = request.headers
-    # check header here
-    if 'Authorization' not in headers:
-        return Response(json.dumps({"error": "missing auth"}),
-                        status=401,
-                        mimetype='application/json')
-    # list all songs here
-    return {}
+# @bp.route('/', methods=['GET'])
+# def list_all():
+#     headers = request.headers
+#     # check header here
+#     if 'Authorization' not in headers:
+#         return Response(json.dumps({"error": "missing auth"}),
+#                         status=401,
+#                         mimetype='application/json')
+#     # list all songs here
+#     return {}
 
 
 @bp.route('/<music_id>', methods=['GET'])
@@ -98,12 +98,14 @@ def create_song():
         content = request.get_json()
         Artist = content['Artist']
         SongTitle = content['SongTitle']
+        Votes = content["Votes"]
+        Genre = content["Genre"]
     except Exception:
         return json.dumps({"message": "error reading arguments"})
     url = db['name'] + '/' + db['endpoint'][1]
     response = requests.post(
         url,
-        json={"objtype": "music", "Artist": Artist, "SongTitle": SongTitle},
+        json={"objtype": "music", "Artist": Artist, "SongTitle": SongTitle, "Votes": Votes, "Genre":Genre},
         headers={'Authorization': headers['Authorization']})
     return (response.json())
 
