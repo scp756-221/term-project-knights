@@ -33,20 +33,23 @@ db = {
         "read",
         "write",
         "delete",
-        "readall"
+        "readall",
+        "update"
     ]
 }
 bp = Blueprint('app', __name__)
 
 
 @bp.route('/health')
+@metrics.do_not_track()
 def health():
-    return ""
+    return Response("", status=200, mimetype="application/json")
 
 
 @bp.route('/readiness')
+@metrics.do_not_track()
 def readiness():
-    return ""
+    return Response("", status=200, mimetype="application/json")
 
 
 # class DecimalEncoder(json.JSONEncoder):
@@ -73,110 +76,123 @@ def list_all():
     return (response.json())
 
 
-# @bp.route('/<music_id>', methods=['GET'])
-# def get_song(music_id):
-#     table = dynamodb.Table('LeaderBoard-projects-g')
-#     try:
-#         response = table.get_item(Key={'music_id': str(music_id)})
-#         return response
-#     except Exception as e:
-#         print(str(e))
-#         return {}
-#
-#
-# @bp.route('/v1/<genre>', methods=['GET'])
-# def get_song_genre(genre):
-#     table = dynamodb.Table('LeaderBoard-projects-g')
-#     try:
-#         response = table.scan(FilterExpression=Attr("genre").eq(genre))
-#         print(response)
-#         return response
-#     except Exception as e:
-#         print(str(e))
-#         return {}
-#     # data = []
-#     # print(list(database.values()))
-#     # for i in list(database.values()):
-#     #     if i[3]== genre:
-#     #         data.append([i[0], i[1], i[2], i[3]])
-#     # print(data)
-#     # response = {
-#     # "Count": len(data),
-#     # "Items":
-#     #     [{'Artist': value[0], 'SongTitle': value[1], 'upvotes':value[2], 'genre':value[3]}
-#     #     for value in data]
-#     # }
-#
-#     return response
-#
-#
-# @bp.route('/', methods=['POST'])
-# def create_song():
-#     headers = request.headers
-#     # check header here
-#     if 'Authorization' not in headers:
-#         return Response(json.dumps({"error": "missing auth"}),
-#                         status=401,
-#                         mimetype='application/json')
-#     try:
-#         content = request.get_json()
-#         Artist = content['Artist']
-#         SongTitle = content['SongTitle']
-#         upvotes = int(content['upvotes'])
-#         genre = content['genre']
-#         music_id = str(uuid.uuid4())
-#     except Exception:
-#         return json.dumps({"message": "error reading arguments"})
-#     put_music(music_id=music_id, artist=Artist, SongTitle=SongTitle, upvotes=upvotes, genre=genre)
-#     print("here")
-#     return "song_added"
-#
-#
-# @bp.route('/<music_id>', methods=['DELETE'])
-# def delete_song(music_id):
-#     table = dynamodb.Table('LeaderBoard-projects-g')
-#     headers = request.headers
-#     # check header here
-#     if 'Authorization' not in headers:
-#         return Response(json.dumps({"error": "missing auth"}),
-#                         status=401,
-#                         mimetype='application/json')
-#     table.delete_item(Key={
-#                 'music_id': str(music_id)})
-#     return "Song Deleted"
-#
-#
-# @bp.route('/<music_id>', methods=['POST'])
-# def upvote(music_id):
-#     # dynamodb.updateItem({
-#     #     TableName: "Leaderboard",
-#     #     Key: {"music_id": {S: music_id}},
-#     #     ExpressionAttributeValues: {":inc": {N: "1"}},
-#     #     UpdateExpression: "ADD upvotes :inc"
-#     # })
-#
-#     table = dynamodb.Table('LeaderBoard-projects-g')
-#     # response = table.get_item(Key={'music_id': str(music_id)})
-#     # print(response)
-#     # upvotes=int(response['upvote'])+1
-#     table.update_item(
-#         Key={
-#             'music_id': str(music_id)
-#         },UpdateExpression="set upvotes=:val",
-#         ExpressionAttributeValues={
-#             ':val': 1
-#         })
-#     return {}
-#
-#
-# @bp.route('/shutdown', methods=['GET'])
-# def shutdown():
-#     # From https://stackoverflow.com/questions/15562446/how-to-stop-flask-application-without-using-ctrl-c # noqa: E501
-#     func = request.environ.get('werkzeug.server.shutdown')
-#     if func is None:
-#         raise RuntimeError('Not running with the Werkzeug Server')
-#     func()
-#     return {}
+@bp.route('/genre/<music_id>', methods=['GET'])
+def get_song_genre(music_id):
+    headers = request.headers
+    # check header here
+    if 'Authorization' not in headers:
+        return Response(json.dumps({"error": "missing auth"}),
+                        status=401,
+                        mimetype='application/json')
+    payload = {"objtype": "music", "objkey": music_id}
+    url = db['name'] + '/' + db['endpoint'][0]
+    response = requests.get(
+        url,
+        params=payload,
+        headers={'Authorization': headers['Authorization']})
+    return (response.json()["Items"][0]["genre"])
+
+
+@bp.route('/<genre>', methods=['GET'])
+def get_genre_songs(genre):
+    headers = request.headers
+    # check header here
+    if 'Authorization' not in headers:
+        return Response(json.dumps({"error": "missing auth"}),
+                        status=401,
+                        mimetype='application/json')
+    payload = {"objtype": "music"}
+    url = db['name'] + '/' + db['endpoint'][3]
+    response = requests.get(
+        url,
+        params=payload,
+        headers={'Authorization': headers['Authorization']})
+    items = response.json()["Items"]
+    result = []
+    for item in items:
+        if item['genre'] == genre:
+            result.append(item)
+    resp = {'Count': len(result), "Items": result}
+    return resp
+
+
+@bp.route('/upvote/<music_id>', methods=['POST'])
+def upvote(music_id):
+    headers = request.headers
+    # check header here
+    if 'Authorization' not in headers:
+        return Response(json.dumps({"error": "missing auth"}),
+                        status=401,
+                        mimetype='application/json')
+
+    payload = {"objtype": "music", "objkey": music_id}
+    url = db['name'] + '/' + db['endpoint'][0]
+    response = requests.get(
+        url,
+        params=payload,
+        headers={'Authorization': headers['Authorization']})
+
+    votes = int(response.json()["Items"][0]["votes"])
+
+    url = db['name'] + '/' + db['endpoint'][4]
+    response = requests.put(
+        url,
+        params=payload,
+        json={"votes": str(votes + 1)},
+        headers={'Authorization': headers['Authorization']})
+    return {"message": 'Song upvoted successfully'}
+
+
+@bp.route('/downvote/<music_id>', methods=['POST'])
+def downvote(music_id):
+    headers = request.headers
+    # check header here
+    if 'Authorization' not in headers:
+        return Response(json.dumps({"error": "missing auth"}),
+                        status=401,
+                        mimetype='application/json')
+
+    payload = {"objtype": "music", "objkey": music_id}
+    url = db['name'] + '/' + db['endpoint'][0]
+    response = requests.get(
+        url,
+        params=payload,
+        headers={'Authorization': headers['Authorization']})
+
+    votes = int(response.json()["Items"][0]["votes"])
+
+    url = db['name'] + '/' + db['endpoint'][4]
+    response = requests.put(
+        url,
+        params=payload,
+        json={"votes": str(votes - 1)},
+        headers={'Authorization': headers['Authorization']})
+    return {"message": 'Song downvoted successfully'}
+
+
+@bp.route('/tabletopper', methods=['GET'])
+def get_top_song():
+    headers = request.headers
+    # check header here
+    if 'Authorization' not in headers:
+        return Response(json.dumps({"error": "missing auth"}),
+                        status=401,
+                        mimetype='application/json')
+    payload = {"objtype": "music"}
+    url = db['name'] + '/' + db['endpoint'][3]
+    response = requests.get(
+        url,
+        params=payload,
+        headers={'Authorization': headers['Authorization']})
+    items = response.json()["Items"]
+    max = 0
+    max_item = ""
+    for item in items:
+        if int(item['votes']) > max:
+            max = int(item['votes'])
+            max_item = item
+    resp = {'Count': 1, "Items": max_item}
+    return resp
 
 
 app.register_blueprint(bp, url_prefix='/api/v1/leaderboard/')
