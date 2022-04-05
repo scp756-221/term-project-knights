@@ -56,7 +56,7 @@ object RUser {
 
 //Pranav
 object WriteTable {
-  val feeder = csv("top10.csv").eager.circular
+  val feeder = csv("music.csv").eager.circular
 
   val rtable = forever("i") {
     feed(feeder)
@@ -67,13 +67,12 @@ object WriteTable {
     .exec(http("Write to table ${i}")
       .post("/api/v1/music")
       .header("Content-Type" , "application/json")
-      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","Votes":"${upvotes}","Genre":"${genre}"}"""))
+      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","Votes":"${votes}","Genre":"${genre}"}"""))
       )
     .pause(1)
     .exec(http("upvote a song ${i}")
       .post("/api/v1/leaderboard/upvote/${uuid}")
       .header("Content-type", "application/json")
-      .body(StringBody(string="""{"music_id":"${uuid}"}""")))
     .pause(1)
     .exec(http("Read from tabe ${i}")
     .get("/"))
