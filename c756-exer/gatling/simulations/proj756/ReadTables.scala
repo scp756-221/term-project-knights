@@ -56,18 +56,23 @@ object RUser {
 
 //Pranav
 object WriteTable {
-  val feeder = csv("music.csv").eager.circular
+  val feeder = csv("top10.csv").eager.circular
 
   val rtable = forever("i") {
     feed(feeder)
     .exec(http("Read from tabe ${i}")
-    .get("/api/v1/music/${UUID}"))
+    .get("/api/v1/music/${uuid}"))
     .pause(1)
     .exec(http("Write to table ${i}")
       .post("/api/v1/music")
       .header("Content-Type" , "application/json")
       .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}"}"""))
       )
+    .pause(1)
+    .exec(http("upvote a song ${i}")
+      .post("/upvote/${uuid}")
+      .header("Content-type", "application/json")
+      .body(StringBody(string="""{"uuid":"${uuid}"}""")))
     .pause(1)
   }  
 }
