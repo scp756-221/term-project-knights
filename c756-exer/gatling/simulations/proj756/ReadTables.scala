@@ -61,18 +61,19 @@ object WriteTable {
   val rtable = forever("i") {
     feed(feeder)
     .exec(http("Read from tabe ${i}")
-    .get("/"))
+    .get("/api/v1/leaderboard/"))
+
     .pause(1)
     .exec(http("Write to table ${i}")
       .post("/api/v1/music")
       .header("Content-Type" , "application/json")
-      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","upvotes":"${upvotes}","genre":"${genre}"}"""))
+      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","Votes":"${Votes}","Genre":"${Genre}"}"""))
       )
     .pause(1)
     .exec(http("upvote a song ${i}")
-      .post("/api/v1/leaderboard/upvote/${uuid}")
+      .post("/api/v1/leaderboard/upvote/${music_id}")
       .header("Content-type", "application/json")
-      .body(StringBody(string="""{"uuid":"${uuid}"}""")))
+      .body(StringBody(string="""{"music_id":"${music_id}"}""")))
     .pause(1)
     .exec(http("Read from tabe ${i}")
     .get("/"))
@@ -143,6 +144,7 @@ class ReadTablesSim extends Simulation {
     .acceptHeader("application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .authorizationHeader("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiZGJmYmMxYzAtMDc4My00ZWQ3LTlkNzgtMDhhYTRhMGNkYTAyIiwidGltZSI6MTYwNzM2NTU0NC42NzIwNTIxfQ.zL4i58j62q8mGUo5a0SQ7MHfukBUel8yl8jGT5XmBPo")
     .acceptLanguageHeader("en-US,en;q=0.5")
+    .basicAuth("username","password")
 }
 
 class ReadUserSim extends ReadTablesSim {
