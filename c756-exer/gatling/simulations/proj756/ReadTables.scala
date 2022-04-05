@@ -54,6 +54,24 @@ object RUser {
 
 }
 
+//Pranav
+object WriteTable {
+  val feeder = csv("music.csv").eager.circular
+
+  val rtable = forever("i") {
+    feed(feeder)
+    .exec(http("Read from tabe ${i}")
+    .get("/api/v1/music/${UUID}"))
+    .pause(1)
+    .exec(http("Write to table ${i}")
+      .post("/api/v1/music")
+      .header("Content-Type" , "application/json")
+      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}"}"""))
+      )
+    .pause(1)
+  }  
+}
+//end Pranav
 /*
   After one S1 read, pause a random time between 1 and 60 s
 */
@@ -133,6 +151,18 @@ class ReadMusicSim extends ReadTablesSim {
     scnReadMusic.inject(atOnceUsers(Utility.envVarToInt("USERS", 1)))
   ).protocols(httpProtocol)
 }
+
+//modified Pranav
+class WriteTableSim extends ReadTablesSim {
+  val scnWriteTable = scenario("WriteTable")
+    .exec(WriteTable.rtable)
+
+  setUp(
+    scnWriteTable.inject(atOnceUsers(Utility.envVarToInt("USERS", 1)))
+  ).protocols(httpProtocol)
+}
+
+// end Pranav
 
 /*
   Read both services concurrently at varying rates.
