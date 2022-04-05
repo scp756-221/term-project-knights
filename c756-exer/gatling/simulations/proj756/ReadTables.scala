@@ -61,19 +61,25 @@ object WriteTable {
   val rtable = forever("i") {
     feed(feeder)
     .exec(http("Read from tabe ${i}")
-    .get("/api/v1/music/${uuid}"))
+    .get("/"))
     .pause(1)
     .exec(http("Write to table ${i}")
       .post("/api/v1/music")
       .header("Content-Type" , "application/json")
-      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}"}"""))
+      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","upvotes":"${upvotes}","genre":"${genre}"}"""))
       )
     .pause(1)
     .exec(http("upvote a song ${i}")
-      .post("/upvote/${uuid}")
+      .post("/api/v1/leaderboard/upvote/${uuid}")
       .header("Content-type", "application/json")
       .body(StringBody(string="""{"uuid":"${uuid}"}""")))
     .pause(1)
+    .exec(http("Read from tabe ${i}")
+    .get("/"))
+    .pause(1)
+
+
+
   }  
 }
 //end Pranav
