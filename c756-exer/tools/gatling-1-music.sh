@@ -3,7 +3,7 @@ docker container run --rm \
   -v ${PWD}/gatling/results:/opt/gatling/results \
   -v ${PWD}/gatling:/opt/gatling/user-files \
   -v ${PWD}/gatling/target:/opt/gatling/target \
-  -e CLUSTER_IP='44.237.211.108' \
+  -e CLUSTER_IP='a4bdec1ffc77242ff9c413cc63b624e8-344996016.us-west-2.elb.amazonaws.com' \
   -e USERS=1 \
   -e SIM_NAME=WriteTableSim \
   --label gatling \
