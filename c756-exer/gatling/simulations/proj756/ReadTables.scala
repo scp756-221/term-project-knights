@@ -72,7 +72,7 @@ object WriteTable {
     .pause(1)
     .exec(http("upvote a song ${i}")
       .post("/api/v1/leaderboard/upvote/${UUID}")
-      .header("Content-type", "application/json")
+      .header("Content-type", "application/json"))
     .pause(1)
     .exec(http("Read from tabe ${i}")
     .get("/api/v1/leaderboard/"))
@@ -143,7 +143,7 @@ class ReadTablesSim extends Simulation {
     .acceptHeader("application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .authorizationHeader("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiZGJmYmMxYzAtMDc4My00ZWQ3LTlkNzgtMDhhYTRhMGNkYTAyIiwidGltZSI6MTYwNzM2NTU0NC42NzIwNTIxfQ.zL4i58j62q8mGUo5a0SQ7MHfukBUel8yl8jGT5XmBPo")
     .acceptLanguageHeader("en-US,en;q=0.5")
-    .basicAuth("AKIASDTB3G2VXNQCXKHX","9UvyNSevhEIhPvy0mOLd4GhNc1GjwD8UyGXFvRVn")
+    .basicAuth("username","password")
 }
 
 class ReadUserSim extends ReadTablesSim {
