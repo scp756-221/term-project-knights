@@ -71,7 +71,7 @@ object WriteTable {
       )
     .pause(1)
     .exec(http("upvote a song ${i}")
-      .post("/api/v1/leaderboard/upvote/${uuid}")
+      .post("/api/v1/leaderboard/upvote/${UUID}")
       .header("Content-type", "application/json")
     .pause(1)
     .exec(http("Read from tabe ${i}")
