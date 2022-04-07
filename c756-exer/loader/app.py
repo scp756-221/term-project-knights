@@ -64,8 +64,8 @@ def create_song(artist, title, uuid, votes, genre):
               "Artist": artist,
               "SongTitle": title,
               "uuid": uuid,
-              "votes": votes,
-              "genre": genre})
+              "Votes": votes,
+              "Genre": genre})
     return (response.json())
 
 
