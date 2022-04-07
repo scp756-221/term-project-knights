@@ -54,7 +54,7 @@ object RUser {
 
 }
 
-//Pranav
+//User Simulation
 object WriteTable {
   val feeder = csv("music.csv").eager.circular
 
@@ -101,7 +101,7 @@ object WriteTable {
 
   }  
 }
-//end Pranav
+//end User Simulation
 /*
   After one S1 read, pause a random time between 1 and 60 s
 */
@@ -183,7 +183,7 @@ class ReadMusicSim extends ReadTablesSim {
   ).protocols(httpProtocol)
 }
 
-//modified Pranav
+
 class WriteTableSim extends ReadTablesSim {
   val scnWriteTable = scenario("WriteTable")
     .exec(WriteTable.rtable)
@@ -193,7 +193,7 @@ class WriteTableSim extends ReadTablesSim {
   ).protocols(httpProtocol)
 }
 
-// end Pranav
+
 
 /*
   Read both services concurrently at varying rates.
