@@ -43,7 +43,6 @@ jobs:
           pip install boto3
           pip install requests
           pip install pytest
-          pip install -e .
 
 
       - name: Runs the db
