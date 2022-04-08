@@ -53,4 +53,5 @@ jobs:
         run: |
             cd c756-exer/leaderboard_local
             pytest
+            echo DONE
 
