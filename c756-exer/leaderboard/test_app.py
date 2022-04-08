@@ -67,7 +67,7 @@ def test_genre():
     response = requests.get("http://44.238.226.5:80/api/v1/leaderboard/pop", auth=(username, password))
     result = response.json()
     for i in result['Items']:
-        lists.append[i['Genre']]
+        lists.append[str(i['Genre'])]
     pop = all(element == lists[0] for element in lists)
     if pop and lists[0]==genre:
         assert True
