@@ -47,7 +47,7 @@ jobs:
 
 
       - name: Tests the app
-          run: |
+        run: |
             cd c756-exer/leaderboard_local
             python test_app.py
 
