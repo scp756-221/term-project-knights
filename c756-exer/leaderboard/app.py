@@ -16,6 +16,7 @@ from flask import request, Response
 from put_item import put_music
 from prometheus_flask_exporter import PrometheusMetrics
 # Local modules
+import unique_code
 import boto3
 import requests
 import simplejson as json
