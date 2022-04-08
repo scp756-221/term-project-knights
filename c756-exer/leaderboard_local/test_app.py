@@ -3,7 +3,9 @@ import requests
 
 class TestStringMethods(unittest.TestCase):
     def test_read(self):
+        print("here")
         response = requests.get("http://0.0.0.0:5000/api/v1/leaderboard/")
+        print("there")
         assert response.status_code == 200
 
     def test_read_single(self):
