@@ -39,6 +39,7 @@ jobs:
       - name: Install all dependencies
         run: |
           pip install requests
+          pip install pytest
 
 
 #      - name: Runs the db
