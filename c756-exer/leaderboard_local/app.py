@@ -4,8 +4,6 @@ Sample STANDALONE application---music service.
 """
 
 # Standard library modules
-import csv
-import logging
 import os
 import sys
 import uuid
@@ -15,7 +13,6 @@ from flask import Flask
 from flask import request
 from put_item import put_music
 # Local modules
-import unique_code
 import boto3
 import json
 import decimal
@@ -54,29 +51,18 @@ dynamodb = boto3.resource(
     aws_secret_access_key=secret_access_key)
 
 
-@bp.route('/health')
-def health():
-    return ""
-
-
-@bp.route('/readiness')
-def readiness():
-    return ""
-
-
 @bp.route('/', methods=['GET'])
 def list_all():
     table = dynamodb.Table('Leaderboard')
-    print("hi")
-    print(table.scan())
-    print("bye")
-    a=table.scan()
+    a = table.scan()
+
     class DecimalEncoder(json.JSONEncoder):
-            def default(self, obj):
-                if isinstance(obj, decimal.Decimal):
-                    return int(obj)
-                return super(DecimalEncoder, self).default(obj)
-    a=json.dumps(a,cls=DecimalEncoder)
+        def default(self, obj):
+            if isinstance(obj, decimal.Decimal):
+                return int(obj)
+            return super(DecimalEncoder, self).default(obj)
+
+    a = json.dumps(a, cls=DecimalEncoder)
     return a
 
 
@@ -109,7 +95,6 @@ def create_song():
     except Exception:
         return json.dumps({"message": "error reading arguments"})
     put_music(music_id=music_id, artist=Artist, SongTitle=SongTitle, upvotes=upvotes, genre=genre)
-    print("here")
     return "song_added"
 
 
@@ -123,27 +108,12 @@ def delete_song(music_id):
                         status=401,
                         mimetype='application/json')
     table.delete_item(Key={
-                'music_id': str(music_id)})
+        'music_id': str(music_id)})
     return "Song Deleted"
-
-
-
-@bp.route('/shutdown', methods=['GET'])
-def shutdown():
-    # From https://stackoverflow.com/questions/15562446/how-to-stop-flask-application-without-using-ctrl-c # noqa: E501
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-    return {}
 
 
 app.register_blueprint(bp, url_prefix='/api/v1/leaderboard/')
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        logging.error("missing port arg 1")
-        sys.exit(-1)
-    # app.logger.error("Unique code: {}".format(ucode))
     p = int(sys.argv[1])
     app.run(host='0.0.0.0', port=p, threaded=True)
