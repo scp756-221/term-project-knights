@@ -55,5 +55,6 @@ jobs:
       - name: Tests the app
         run: |
             cd c756-exer/leaderboard_local
+            pip install requests
             python test_app.py
 
