@@ -91,32 +91,6 @@ def get_song(music_id):
         return {}
 
 
-@bp.route('/v1/<genre>', methods=['GET'])
-def get_song_genre(genre):
-    table = dynamodb.Table('Leaderboard')
-    try:
-        response = table.scan(FilterExpression=Attr("genre").eq(genre))
-        print(response)
-        return response
-    except Exception as e:
-        print(str(e))
-        return {}
-    # data = []
-    # print(list(database.values()))
-    # for i in list(database.values()):
-    #     if i[3]== genre:
-    #         data.append([i[0], i[1], i[2], i[3]])
-    # print(data)
-    # response = {
-    # "Count": len(data),
-    # "Items":
-    #     [{'Artist': value[0], 'SongTitle': value[1], 'upvotes':value[2], 'genre':value[3]}
-    #     for value in data]
-    # }
-
-    return response
-
-
 @bp.route('/', methods=['POST'])
 def create_song():
     headers = request.headers
@@ -152,28 +126,6 @@ def delete_song(music_id):
                 'music_id': str(music_id)})
     return "Song Deleted"
 
-
-@bp.route('/<music_id>', methods=['POST'])
-def upvote(music_id):
-    # dynamodb.updateItem({
-    #     TableName: "Leaderboard",
-    #     Key: {"music_id": {S: music_id}},
-    #     ExpressionAttributeValues: {":inc": {N: "1"}},
-    #     UpdateExpression: "ADD upvotes :inc"
-    # })
-
-    table = dynamodb.Table('Leaderboard')
-    # response = table.get_item(Key={'music_id': str(music_id)})
-    # print(response)
-    # upvotes=int(response['upvote'])+1
-    table.update_item(
-        Key={
-            'music_id': str(music_id)
-        },UpdateExpression="set upvotes=:val",
-        ExpressionAttributeValues={
-            ':val': 1
-        })
-    return {}
 
 
 @bp.route('/shutdown', methods=['GET'])

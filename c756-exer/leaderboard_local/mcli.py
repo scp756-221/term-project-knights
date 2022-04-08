@@ -145,66 +145,7 @@ Enter 'help' for command list.
             headers={'Authorization': DEFAULT_AUTH}
         )
         print("Song added!")
-
-    def do_upvote(self,arg):
-        """
-        Upvote a song in the database.
-
-        Parameters
-        ----------
-        id - music id
-
         
-        Examples
-        --------
-        upvote 27sn189e6201720ws
-        """
-        url = get_url(self.name, self.port)
-        
-        args = parse_quoted_strings(arg)
-        payload = {
-            'music_id':arg[0]
-        }
-        url=url+args[0]
-        r = requests.post(
-            url,
-            json=payload,
-            headers={'Authorization': DEFAULT_AUTH}
-        )
-        print(r.json())
-
-    def do_genre(self,arg):
-        """
-        Filter songs in the database according to genre.
-
-        Parameters
-        ----------
-        genre - genre
-
-        
-        Examples
-        --------
-        genre pop
-        """
-        url = get_url(self.name, self.port)
-        
-        args = parse_quoted_strings(arg)
-        url=url+"v1/"+args[0]
-        r = requests.get(
-            url,
-            headers={'Authorization': DEFAULT_AUTH}
-        )
-        items = r.json()
-        if 'Count' not in items:
-            print("0 items returned")
-            return
-        print("{} items returned".format(items['Count']))
-        for i in items['Items']:
-            print("{:20.20s} {}   {}    {}".format(
-                i['Artist'],
-                i['SongTitle'],
-                i['upvotes'],
-                i['genre']))
 
     def do_delete(self, arg):
         """
