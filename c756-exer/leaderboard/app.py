@@ -90,7 +90,7 @@ def get_song_genre(music_id):
         url,
         params=payload,
         headers={'Authorization': headers['Authorization']})
-    return (response.json()["Items"][0]["genre"])
+    return (response.json()["Items"][0]["Genre"])
 
 
 @bp.route('/<genre>', methods=['GET'])
@@ -110,7 +110,7 @@ def get_genre_songs(genre):
     items = response.json()["Items"]
     result = []
     for item in items:
-        if item['genre'] == genre:
+        if item['Genre'] == genre:
             result.append(item)
     resp = {'Count': len(result), "Items": result}
     return resp
@@ -132,13 +132,13 @@ def upvote(music_id):
         params=payload,
         headers={'Authorization': headers['Authorization']})
 
-    votes = int(response.json()["Items"][0]["votes"])
+    Votes = int(response.json()["Items"][0]["Votes"])
 
     url = db['name'] + '/' + db['endpoint'][4]
     response = requests.put(
         url,
         params=payload,
-        json={"votes": str(votes + 1)},
+        json={"Votes": str(Votes + 1)},
         headers={'Authorization': headers['Authorization']})
     return {"message": 'Song upvoted successfully'}
 
@@ -159,13 +159,13 @@ def downvote(music_id):
         params=payload,
         headers={'Authorization': headers['Authorization']})
 
-    votes = int(response.json()["Items"][0]["votes"])
+    Votes = int(response.json()["Items"][0]["Votes"])
 
     url = db['name'] + '/' + db['endpoint'][4]
     response = requests.put(
         url,
         params=payload,
-        json={"votes": str(votes - 1)},
+        json={"Votes": str(Votes - 1)},
         headers={'Authorization': headers['Authorization']})
     return {"message": 'Song downvoted successfully'}
 
@@ -188,8 +188,8 @@ def get_top_song():
     max = 0
     max_item = ""
     for item in items:
-        if int(item['votes']) > max:
-            max = int(item['votes'])
+        if int(item['Votes']) > max:
+            max = int(item['Votes'])
             max_item = item
     resp = {'Count': 1, "Items": max_item}
     return resp

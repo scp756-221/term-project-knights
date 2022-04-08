@@ -105,7 +105,7 @@ def create_song():
     url = db['name'] + '/' + db['endpoint'][1]
     response = requests.post(
         url,
-        json={"objtype": "music", "Artist": Artist, "SongTitle": SongTitle, "Votes": Votes, "Genre":Genre},
+        json={"objtype": "music", "Artist": Artist, "SongTitle": SongTitle, "Votes": Votes, "Genre": Genre},
         headers={'Authorization': headers['Authorization']})
     return (response.json())
 
