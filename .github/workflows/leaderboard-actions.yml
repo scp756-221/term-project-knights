@@ -52,6 +52,6 @@ jobs:
       - name: Tests the app
         run: |
             cd c756-exer/leaderboard_local
-            pytest
+            CI=true pytest
             echo DONE
 
