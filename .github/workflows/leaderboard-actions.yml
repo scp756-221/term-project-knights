@@ -40,16 +40,18 @@ jobs:
       - name: Runs the db
         run: |
           cd dynamodb_local_latest
-          java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb & ../cd c756-exer/leaderboard_local & python app.py 5000 & python test_app.py
+          nohup java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb &
 
-#      - name: Runs the app
-#        run: |
-#          cd c756-exer/leaderboard_local
-#          python app.py 5000
+#           cd ../c756-exer/leaderboard_local & python app.py 5000 & python test_app.py
+
+      - name: Runs the app
+        run: |
+          cd c756-exer/leaderboard_local
+          nohup python app.py 5000 &
 #
 #
-#      - name: Tests the app
-#        run: |
-#            cd c756-exer/leaderboard_local
-#            python test_app.py
+      - name: Tests the app
+        run: |
+            cd c756-exer/leaderboard_local
+            python test_app.py
 
