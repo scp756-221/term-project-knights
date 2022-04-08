@@ -1,6 +1,5 @@
 import requests
 import os
-from put_item import put_music
 
 username = os.getenv('AWS_ACCESS_KEY_ID')
 password = os.getenv('AWS_SECRET_ACCESS_KEY_ID')
