@@ -13,8 +13,8 @@
 #         assert response.json()['Item'] == {'Artist': 'Ed Sheeran', 'SongTitle': 'Shivers', 'genre': 'pop', 'music_id': '33dc8408-be2b-410b-b12a-f48efdb6f15f', 'upvotes': '26'}
 #
 #
-# if __name__ == '__main__':
-#     print("hello")
-#     unittest.main()
+if __name__ == '__main__':
+    print("hello")
+    # unittest.main()
 
-print("hello")
+# print("hello")
