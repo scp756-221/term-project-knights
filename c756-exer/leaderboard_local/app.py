@@ -67,9 +67,6 @@ def readiness():
 @bp.route('/', methods=['GET'])
 def list_all():
     table = dynamodb.Table('Leaderboard')
-    print("hi")
-    print(table.scan())
-    print("bye")
     a=table.scan()
     class DecimalEncoder(json.JSONEncoder):
             def default(self, obj):
