@@ -67,7 +67,7 @@ object WriteTable {
     .exec(http("Write to table ${i}")
       .post("/api/v1/music")
       .header("Content-Type" , "application/json")
-      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","Votes":"${votes}","Genre":"${genre}"}"""))
+      .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","Votes":"${Votes}","Genre":"${Genre}"}"""))
       )
     .pause(1)
 
@@ -81,7 +81,7 @@ object WriteTable {
     .pause(1)
 
     .exec(http("Getting songs based on genre ${i}")
-    .get("/api/v1/leaderboard/${genre}"))
+    .get("/api/v1/leaderboard/${Genre}"))
     .pause(1)
 
     .exec(http("downvote a song ${i}")
