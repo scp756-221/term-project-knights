@@ -27,15 +27,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Install all dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          pip install flask
+          pip install boto3
+          pip install requests
+          pip install pytest
+
 
       - name: Runs the db
         run: |
@@ -47,14 +46,11 @@ jobs:
       - name: Runs the app
         run: |
           cd c756-exer/leaderboard_local
-          pip install flask
-          pip install boto3
           nohup python app.py 5000 &
 #
 #
       - name: Tests the app
         run: |
             cd c756-exer/leaderboard_local
-            pip install requests
-            python test_app.py
+            pytest
 
