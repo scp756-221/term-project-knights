@@ -7,9 +7,10 @@ on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main, shivek ]
-#    paths:
-#      - dynamodb_local_latest/*
-#      - c756-exer/leaderboard_local/*
+    paths:
+      - dynamodb_local_latest/*
+      - c756-exer/leaderboard_local/*
+      - .github/workflows/leaderboard-actions.yml
 
 #  pull_request:
 #    branches: [ main, shivek ]
