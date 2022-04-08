@@ -19,6 +19,9 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    strategy:
+      matrix:
+        python-version: [ 3.8.8 ]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -27,6 +30,12 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+            python-version: ${{ matrix.python-version }}
+
       # Runs a set of commands using the runners shell
       - name: Install all dependencies
         run: |
@@ -34,6 +43,7 @@ jobs:
           pip install boto3
           pip install requests
           pip install pytest
+          pip install -e .
 
 
       - name: Runs the db
