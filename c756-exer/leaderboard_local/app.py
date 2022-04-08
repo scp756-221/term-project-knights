@@ -15,7 +15,6 @@ from flask import Flask
 from flask import request
 from put_item import put_music
 # Local modules
-import unique_code
 import boto3
 import json
 import decimal
@@ -67,9 +66,6 @@ def readiness():
 @bp.route('/', methods=['GET'])
 def list_all():
     table = dynamodb.Table('Leaderboard')
-    print("hi")
-    print(table.scan())
-    print("bye")
     a=table.scan()
     class DecimalEncoder(json.JSONEncoder):
             def default(self, obj):

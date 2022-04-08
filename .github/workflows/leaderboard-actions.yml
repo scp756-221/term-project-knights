@@ -1,14 +1,16 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Tests
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ main, shivek ]
+    paths:
+      - dynamodb_local_latest/*
+      - c756-exer/leaderboard_local/*
+      - .github/workflows/leaderboard-actions.yml
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -17,6 +19,9 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    strategy:
+      matrix:
+        python-version: [ 3.8.12 ]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -25,12 +30,32 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+            python-version: ${{ matrix.python-version }}
 
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Install all dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          pip install -r c756-exer/leaderboard_local/requirements.txt
+
+
+      - name: Runs the db
+        run: |
+          cd dynamodb_local_latest
+          nohup java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb &
+
+      - name: Runs the app
+        run: |
+          cd c756-exer/leaderboard_local
+          nohup python app.py 5000 &
+#
+#
+      - name: Tests the app
+        run: |
+            cd c756-exer/leaderboard_local
+            pytest --exitfirst --verbose --failed-first --cov=. --cov-report html
+            echo DONE
+
