@@ -48,6 +48,7 @@ jobs:
         run: |
           cd c756-exer/leaderboard_local
           pip install flask
+          pip install boto3
           nohup python app.py 5000 &
 #
 #
