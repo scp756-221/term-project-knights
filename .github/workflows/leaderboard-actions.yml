@@ -61,6 +61,6 @@ jobs:
       - name: Tests the app
         run: |
             cd c756-exer/leaderboard_local
-            CI=true pytest
+            pytest --exitfirst --verbose --failed-first
             echo DONE
 
