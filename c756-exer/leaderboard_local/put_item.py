@@ -1,9 +1,18 @@
 import boto3
+import os
 
+access_key = 'djnasdaskj'
+secret_access_key = 'djasndaadsj'
+region = os.getenv('AWS_REGION', 'us-west-2')
 
 def put_music( music_id,artist,SongTitle,upvotes,genre ,dynamodb=None):
     if not dynamodb:
-        dynamodb = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
+        dynamodb = boto3.resource(
+            'dynamodb',
+            endpoint_url='http://localhost:8000',
+            region_name=region,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key)
 
     table = dynamodb.Table('Leaderboard')
     response = table.put_item(
