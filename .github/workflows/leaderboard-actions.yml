@@ -47,6 +47,7 @@ jobs:
       - name: Runs the app
         run: |
           cd c756-exer/leaderboard_local
+          pip install flask
           nohup python app.py 5000 &
 #
 #
