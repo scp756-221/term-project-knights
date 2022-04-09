@@ -5,8 +5,8 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-String username = System.getenv("AWS_ACCESS_KEY_ID");
-String password = System.getenv("AWS_SECRET_ACCESS_KEY");
+String username = System.getProperty("AWS_ACCESS_KEY_ID");
+String password = System.getProperty("AWS_SECRET_ACCESS_KEY");
 
 object Utility {
   /*
