@@ -5,6 +5,9 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
+String username = System.getenv("AWS_ACCESS_KEY_ID");
+String password = System.getenv("AWS_SECRET_ACCESS_KEY");
+
 object Utility {
   /*
     Utility to get an Int from an environment variable.
@@ -162,7 +165,7 @@ class ReadTablesSim extends Simulation {
     .acceptHeader("application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .authorizationHeader("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiZGJmYmMxYzAtMDc4My00ZWQ3LTlkNzgtMDhhYTRhMGNkYTAyIiwidGltZSI6MTYwNzM2NTU0NC42NzIwNTIxfQ.zL4i58j62q8mGUo5a0SQ7MHfukBUel8yl8jGT5XmBPo")
     .acceptLanguageHeader("en-US,en;q=0.5")
-    .basicAuth("username","password")
+    .basicAuth(username, password)
 }
 
 class ReadUserSim extends ReadTablesSim {
