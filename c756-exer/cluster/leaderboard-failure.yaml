@@ -10,9 +10,6 @@
 #
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
-tcp:
-  maxConnections: 1
-
 metadata:
   name: cmpt756leaderboard
 spec:
@@ -35,19 +32,6 @@ spec:
   gateways:
   - c756-gateway
   http:
-  - fault:
-      delay:
-        fixedDelay: 10s
-        percentage:
-          value: 100
-    route:
-    - weight: 100
-      destination:
-        host: cmpt756leaderboard
-        port:
-          number: 30003
-        subset: v1
-    timeout: 2s
   - match:
     - uri:
         prefix: /api/v1/leaderboard
@@ -60,4 +44,6 @@ spec:
         port:
           number: 30003
         subset: v1
+    timeout: 2s
+    
       
