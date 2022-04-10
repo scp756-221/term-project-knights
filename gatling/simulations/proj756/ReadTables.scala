@@ -46,7 +46,7 @@ object RUser {
 
   val feeder = csv("users.csv").eager.circular
 
-  val ruser = 
+  val ruser = forever("i") {
     feed(feeder)
     .exec(http("RUser ${i}")
       .get("/api/v1/user/${UUID}"))
