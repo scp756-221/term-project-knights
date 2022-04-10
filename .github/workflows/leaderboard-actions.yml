@@ -8,7 +8,7 @@ on:
   push:
     branches: [ main, shivek ]
     paths:
-      - c756-exer/leaderboard/*
+      - leaderboard/*
       - .github/workflows/leaderboard-actions.yml
 
   # Allows you to run this workflow manually from the Actions tab
@@ -42,20 +42,9 @@ jobs:
           pip install pytest
 
 
-#      - name: Runs the db
-#        run: |
-#          cd dynamodb_local_latest
-#          nohup java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb &
-
-#      - name: Runs the app
-#        run: |
-#          cd c756-exer/leaderboard_local
-#          nohup python app.py 5000 &
-#
-#
       - name: Tests the app
         run: |
-            cd c756-exer/leaderboard
+            cd leaderboard
             pytest
             echo DONE
 
