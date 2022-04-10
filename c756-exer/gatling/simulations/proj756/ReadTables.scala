@@ -46,7 +46,7 @@ object RUser {
 
   val feeder = csv("users.csv").eager.circular
 
-  val ruser = 
+  val ruser = forever("i") {
     feed(feeder)
     .exec(http("RUser ${i}")
       .get("/api/v1/user/${UUID}"))
@@ -59,48 +59,45 @@ object RUser {
 object WriteTable {
   val feeder = csv("music.csv").eager.circular
 
-  val rtable = forever("i") {
+  val rtable =
     feed(feeder)
-    .exec(http("Read from tabe ${i}")
+    .exec(http("Read from tabe")
     .get("/api/v1/leaderboard/"))
 
     .pause(1)
-    .exec(http("Write to table ${i}")
+    .exec(http("Write to table  ")
       .post("/api/v1/music")
       .header("Content-Type" , "application/json")
       .body(StringBody(string="""{"Artist":"${Artist}","SongTitle":"${SongTitle}","Votes":"${Votes}","Genre":"${Genre}"}"""))
       )
     .pause(1)
 
-    .exec(http("upvote a song ${i}")
+    .exec(http("upvote a song  ")
       .post("/api/v1/leaderboard/upvote/${UUID}")
       .header("Content-type", "application/json"))
     .pause(1)
 
-    .exec(http("Read from tabe ${i}")
+    .exec(http("Read from tabe  ")
     .get("/api/v1/leaderboard/"))
     .pause(1)
 
-    .exec(http("Getting songs based on genre ${i}")
+    .exec(http("Getting songs based on genre  ")
     .get("/api/v1/leaderboard/${Genre}"))
     .pause(1)
 
-    .exec(http("downvote a song ${i}")
+    .exec(http("downvote a song  ")
     .post("/api/v1/leaderboard/downvote/${UUID}")
     .header("Content-type", "application/json"))
     .pause(1)
 
-    .exec(http("Read from tabe ${i}")
+    .exec(http("Read from tabe  ")
     .get("/api/v1/leaderboard/"))
     .pause(1)
 
-    .exec(http("Read the tabletopper ${i}")
+    .exec(http("Read the tabletopper  ")
     .get("/api/v1/leaderboard/tabletopper"))
     .pause(1)
-
-
-
-  }  
+} 
 
 //end User Simulation
 /*
