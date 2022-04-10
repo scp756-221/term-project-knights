@@ -10,7 +10,7 @@ import uuid
 # Installed packages
 from flask import Blueprint
 from flask import Flask
-from flask import request
+from flask import request, Response
 from put_item import put_music
 # Local modules
 import boto3
@@ -79,12 +79,6 @@ def get_song(music_id):
 
 @bp.route('/', methods=['POST'])
 def create_song():
-    headers = request.headers
-    # check header here
-    if 'Authorization' not in headers:
-        return Response(json.dumps({"error": "missing auth"}),
-                        status=401,
-                        mimetype='application/json')
     try:
         content = request.get_json()
         Artist = content['Artist']
@@ -101,12 +95,6 @@ def create_song():
 @bp.route('/<music_id>', methods=['DELETE'])
 def delete_song(music_id):
     table = dynamodb.Table('Leaderboard')
-    headers = request.headers
-    # check header here
-    if 'Authorization' not in headers:
-        return Response(json.dumps({"error": "missing auth"}),
-                        status=401,
-                        mimetype='application/json')
     table.delete_item(Key={
         'music_id': str(music_id)})
     return "Song Deleted"
