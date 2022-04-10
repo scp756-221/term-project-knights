@@ -90,4 +90,39 @@ you can check the logs using commands mentioned in Assignment 4 to retrieve the 
 
 <pre><code>docker rmi -f $(docker images -a -q)</code></pre>
 
+### To run Grafana dashboard
+
+<pre><code>make -f k8s.mak grafana-url</code></pre>
+
+### To run Prometheus dashbord
+
+<pre><code>make -f k8s.mak prometheus-url</code></pre>
+
+### To run Gatling
+
+1. Go to tools/gatling-1-music.sh and add your cluster ip
+
+2. To run from root folder:
+<pre><code> tools/gatling-1-music.sh</code></pre>
+
+3. To stop call:
+<pre><code>tools/kill-gatling.sh</code></pre>
+
+### To run the app locally:
+
+1. Run 3 terminal windows.
+
+2. In the first window, run the db:
+<pre><code> cd dynamodb_local_latest 
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb</code></pre>
+
+3. In the second window, run the app:
+<pre><code> cd leaderboard_local
+python app.py 30001 </code></pre>
+
+4. In the third window, run the mcli to test:
+<pre><code> cd leaderboard_local
+python mcli.py localhost 30001 </code></pre>
+
+After that you can test "read", "create", and "delete" functionalities.
 
