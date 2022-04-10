@@ -44,10 +44,17 @@ spec:
         port:
           number: 30003
         subset: v1
+    timeout: 2s
   - match:
     - uri:
         prefix: /api/v1/leaderboard
     rewrite:
       uri: /api/v1/leaderboard
-    
+    route:
+    - weight: 100
+      destination:
+        host: cmpt756leaderboard
+        port:
+          number: 30003
+        subset: v1
       
