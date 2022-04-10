@@ -37,11 +37,6 @@ spec:
         fixedDelay: 10s
         percentage:
           value: 100
-  - match:
-    - uri:
-        prefix: /api/v1/leaderboard
-    rewrite:
-      uri: /api/v1/leaderboard
     route:
     - weight: 100
       destination:
@@ -49,4 +44,10 @@ spec:
         port:
           number: 30003
         subset: v1
+  - match:
+    - uri:
+        prefix: /api/v1/leaderboard
+    rewrite:
+      uri: /api/v1/leaderboard
+    
       
