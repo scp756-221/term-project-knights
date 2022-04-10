@@ -59,7 +59,7 @@ object RUser {
 object WriteTable {
   val feeder = csv("music.csv").eager.circular
 
-  val rtable = forever("i") {
+  val rtable = 
     feed(feeder)
     .exec(http("Read from tabe ${i}")
     .get("/api/v1/leaderboard/"))
@@ -97,10 +97,8 @@ object WriteTable {
     .exec(http("Read the tabletopper ${i}")
     .get("/api/v1/leaderboard/tabletopper"))
     .pause(1)
+}
 
-
-
-  }  
 
 //end User Simulation
 /*
