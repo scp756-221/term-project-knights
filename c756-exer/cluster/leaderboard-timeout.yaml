@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cmpt756leaderboard
+  labels:
+    app: cmpt756leaderboard
+spec:
+  http:
+    - fault:
+        delay:
+          fixedDelay: 10s
+          percentage:
+            value: 100
+      route:
+      - destination:
+          host: cmpt756leaderboard
+          port:
+            number: 30003
+      timeout: 2s
+    - match:
+      - uri:
+          prefix: /api/v1/leaderboard
+      rewrite:
+        uri:  /api/v1/leaderboard
+      route:
+    - destination:
+        host: cmpt756leaderboard
+        subset: v1
+      weight: 90
+    - destination:
+        host: cmpt756leaderboard
+        subset: v2
+      weight: 10
