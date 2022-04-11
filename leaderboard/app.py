@@ -4,23 +4,17 @@ Sample STANDALONE application---leaderboard service.
 """
 
 # Standard library modules
-import csv
 import logging
-import os
 import sys
-import uuid
+
+# Local modules
+import requests
+import simplejson as json
 # Installed packages
 from flask import Blueprint
 from flask import Flask
 from flask import request, Response
-from put_item import put_music
 from prometheus_flask_exporter import PrometheusMetrics
-# Local modules
-import unique_code
-import boto3
-import requests
-import simplejson as json
-import decimal
 
 app = Flask(__name__)
 
