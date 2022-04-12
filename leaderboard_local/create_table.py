@@ -5,6 +5,9 @@ from put_item import put_music
 
 
 def create_leader_table(dynamodb=None):
+    """
+    Create the table in dynamo db with the given schema
+    """
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
 
@@ -32,6 +35,9 @@ def create_leader_table(dynamodb=None):
 
 
 def load_data(df):
+    """
+    Dumping the default data in DB
+    """
     for i in range(df.shape[0]):
         temp = df.iloc[i]
         id = str(uuid.uuid4())
