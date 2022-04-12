@@ -34,11 +34,7 @@ database = {}
 
 region = os.getenv('AWS_REGION', 'us-west-2')
 
-# these must be present; if they are missing, we should probably bail now
-# access_key = os.getenv('AWS_ACCESS_KEY_ID')
-# secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
 
-# Must be presented to authorize call to `/load`
 loader_token = os.getenv('SVC_LOADER_TOKEN')
 access_key = 'djnasdaskj'
 secret_access_key = 'djasndaadsj'
@@ -53,6 +49,9 @@ dynamodb = boto3.resource(
 
 @bp.route('/', methods=['GET'])
 def list_all():
+    """
+    To read all data from db
+    """
     table = dynamodb.Table('Leaderboard')
     a = table.scan()
 
@@ -68,6 +67,9 @@ def list_all():
 
 @bp.route('/<music_id>', methods=['GET'])
 def get_song(music_id):
+    """
+    To read single song from DB
+    """
     table = dynamodb.Table('Leaderboard')
     try:
         response = table.get_item(Key={'music_id': str(music_id)})
@@ -79,6 +81,9 @@ def get_song(music_id):
 
 @bp.route('/', methods=['POST'])
 def create_song():
+    """
+    Create a new song in DB
+    """
     try:
         content = request.get_json()
         Artist = content['Artist']
@@ -94,6 +99,9 @@ def create_song():
 
 @bp.route('/<music_id>', methods=['DELETE'])
 def delete_song(music_id):
+    """
+    Delete a song from DB
+    """
     table = dynamodb.Table('Leaderboard')
     table.delete_item(Key={
         'music_id': str(music_id)})
