@@ -5,7 +5,10 @@ access_key = 'djnasdaskj'
 secret_access_key = 'djasndaadsj'
 region = os.getenv('AWS_REGION', 'us-west-2')
 
-def put_music( music_id,artist,SongTitle,upvotes,genre ,dynamodb=None):
+def put_music(music_id,artist,SongTitle,upvotes,genre ,dynamodb=None):
+    """
+    Fill a row in DB
+    """
     if not dynamodb:
         dynamodb = boto3.resource(
             'dynamodb',
